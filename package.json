@@ -1,5 +1,5 @@
 {
-  "name": "prisma",
+  "name": "nlw-copa-api",
   "version": "1.0.0",
   "main": "server.js",
   "keywords": ["prisma", "api", "express", "typescript"],
