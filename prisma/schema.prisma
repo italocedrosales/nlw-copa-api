@@ -7,26 +7,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
-}
-
-model Post {
-  id        Int     @id @default(autoincrement())
+model Poll {
+  id        String   @id @default(cuid())
   title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+  code      String   @unique
+  createdAt DateTime @default(now())
+  ownerId   String?
+
+  participants Participant[]
+  owner        User?         @relation(fields: [ownerId], references: [id])
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+model Participant {
+  id     String @id @default(cuid())
+  userId String
+  pollId String
+
+  guesses Guess[]
+  user    User    @relation(fields: [userId], references: [id])
+  poll    Poll    @relation(fields: [pollId], references: [id])
+
+  @@unique([userId, pollId])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  googleId  String?  @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  participatingAt Participant[]
+  ownpolls        Poll[]
+}
+
+model Game {
+  id                    String   @id @default(cuid())
+  date                  DateTime
+  firstTeamCountryCode  String
+  secondTeamCountryCode String
+
+  guesses Guess[]
+}
+
+model Guess {
+  id               String   @id @default(cuid())
+  firstTeamPoints  Int
+  secondTeamPoints Int
+  createdAt        DateTime @default(now())
+  gameId           String
+  participantId    String
+
+  participant Participant @relation(fields: [participantId], references: [id])
+  game        Game        @relation(fields: [gameId], references: [id])
+
+  @@unique([participantId, gameId])
 }
